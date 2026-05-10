@@ -1,8 +1,8 @@
 import telebot
 
-TOKEN = 'ваш_токен'
-TARGET_CHAT_ID = -1001234567890  
-ADMIN_CHAT_ID = 123456789        
+TOKEN = '8225110405:AAGYJ_xFdgSywGJMaUeTjAn_fhAeK6wYQhE'
+TARGET_CHAT_ID = -1003796818229  
+ADMIN_CHAT_ID = 5110146436        
 
 bot = telebot.TeleBot(TOKEN)
 
