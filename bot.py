@@ -1,6 +1,9 @@
 import asyncio
 from aiogram import Bot, Dispatcher, types, F
 
+const express = require('express')
+const app = express()
+const port = process.env.PORT || 4000
 
 TOKEN = "8225110405:AAE6PO-F3GVDxRzbd2LJqUTBLaxcpLY2BXw"
 GROUP_ID = "@shlakoCHAT"
