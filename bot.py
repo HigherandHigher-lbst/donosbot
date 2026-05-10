@@ -1,45 +1,38 @@
-import asyncio
-from aiogram import Bot, Dispatcher, types, F
-
-const express = require('express')
-const app = express()
-const port = process.env.PORT || 4000
+import os
+import telebot
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
 
 TOKEN = "8225110405:AAE6PO-F3GVDxRzbd2LJqUTBLaxcpLY2BXw"
-GROUP_ID = "@shlakoCHAT"
-TOPIC_ID = 11
-MY_ID = 5110146436
+GROUP_ID = -1003796818229 
+TOPIC_ID = 11             
+ADMIN_ID = 5110146436     
 
+bot = telebot.TeleBot(TOKEN)
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
-
-@dp.message(F.text == "/start")
-async def cmd_start(message: types.Message):
-    await message.answer("Привет! Хочешь написать донос? (за фейк будет варн)")
-
-@dp.message(F.text)
-async def handle_report(message: types.Message):
-    if message.chat.type == 'private':
-        try:
+@bot.message_handler(func=lambda message: message.chat.type == 'private')
+def handle_message(message):
+        
+    bot.copy_message(
+        chat_id=GROUP_ID,	
             
-            await bot.send_message(
-                chat_id=GROUP_ID, 
-                text=f"📢 **Анонимный донос:**\n\n{message.text}",
-                message_thread_id=TOPIC_ID
-            )
-            
-            user = message.from_user
-            info = f"👤 От: {user.full_name} (@{user.username})\nID: {user.id}\nТекст: {message.text}"
-            await bot.send_message(MY_ID, info)
-            
-            
-            await message.answer("Спасибо за ваш донос!")
-        except Exception as e:
-            print(f"Ошибка: {e}")
+        from_chat_id=message.chat.id,
+        message_id=message.message_id,
+        message_thread_id=TOPIC_ID
+    )
+    
+    auth_info = f"Автор: {message.from_user.first_name} | ID: {message.from_user.id}"
+    bot.send_message(ADMIN_ID, f"Новый донос от {auth_info}")
+    
+)
+    bot.forward_message(ADMIN_ID, message.chat.id, message.message_id)
+    
+    bot.send_message(message.chat.id, "Отправлено.")
 
-async def main():
-    await dp.start_polling(bot)
+def run_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(('0.0.0.0', port), type('H', (BaseHTTPRequestHandler,), {'do_GET': lambda s: (s.send_response(200), s.end_headers())}))
+    server.serve_forever()
 
-if __name__ == "__main__":
-    asyncio.run(main())
+threading.Thread(target=run_server, daemon=True).start()
+bot.polling(none_stop=True)
