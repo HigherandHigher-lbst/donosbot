@@ -22,4 +22,4 @@ def handle_message(message):
     
     bot.send_message(message.chat.id, "✅ Отправлено.")
 
-bot.polling()
+bot.polling(none_stop=True)
