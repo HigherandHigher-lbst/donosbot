@@ -3,7 +3,7 @@ import telebot
 TOKEN = '8225110405:AAFJd_G3lAR4j8rDvhGciIwCVBW6AwCrfws'
 TARGET_CHAT_ID = -1003796818229  
 ADMIN_CHAT_ID = 5110146436        
-TOPIC_ID = t.me/shlakoCHAT/3021                  
+TOPIC_ID = 3021                  
 
 bot = telebot.TeleBot(TOKEN)
 
