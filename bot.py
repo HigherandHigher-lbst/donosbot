@@ -20,8 +20,8 @@ def handle_private_message(message):
         
         
         username = f"@{message.from_user.username}" if message.from_user.username else "нет username"
-        info = f"Донесено от:\nID: {message.from_user.id}\nUsername: {username}"
-        bot.send_message(ADMIN_CHAT_ID, info)
+    info = f"Донесено от:\nID: {message.from_user.id}\nUsername: {username}"
+    bot.send_message(ADMIN_CHAT_ID, info)
     
     
     bot.send_message(message.chat.id, "Донос успешно отправлен✅!")
