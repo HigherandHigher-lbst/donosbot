@@ -8,7 +8,7 @@ bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.send_message(message.chat.id, "ахафщгг51оа1а1115112421412")
+    bot.send_message(message.chat.id, "Приветик! Хочешь написать донос? Пиши сюда ниже👇")
 
 
 @bot.message_handler(func=lambda message: message.chat.type == 'private')
@@ -23,6 +23,6 @@ def handle_private_message(message):
         bot.send_message(ADMIN_CHAT_ID, info)
     
     
-    bot.send_message(message.chat.id, "азфафгрпг1ш51")
+    bot.send_message(message.chat.id, "Донос успешно отправлен✅!")
 
 bot.polling(none_stop=True)   
