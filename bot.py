@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher, types, F
 
 
-TOKEN = "8225110405:AAGvtL1J4qFOn16ElxvaGMGEp4EuNQ9v4L0"
+TOKEN = "8225110405:AAE6PO-F3GVDxRzbd2LJqUTBLaxcpLY2BXw"
 GROUP_ID = "@shlakoCHAT"
 TOPIC_ID = 11
 MY_ID = 5110146436
