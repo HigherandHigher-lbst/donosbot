@@ -45,7 +45,7 @@ def is_subscribed(user_id):
     except Exception:
         return False
 
-Е
+
 @bot.chat_member_handler()
 def welcome_on_join(chat_member_update):
     if chat_member_update.new_chat_member.status == "member":
