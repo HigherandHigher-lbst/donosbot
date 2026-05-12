@@ -20,7 +20,7 @@ TOKEN = '8225110405:AAFwYRq9eeviM-mZZiJIk7mvnCV66dwKhng'
 TARGET_CHAT_ID = -1001796038229
 ADMIN_CHAT_ID = 5110146436
 TOPIC_ID = 3821
-GROUP_LINK = "https://t.me"
+GROUP_LINK = "https://t.me/shlakoCHAT"
 
 bot = telebot.TeleBot(TOKEN)
 
