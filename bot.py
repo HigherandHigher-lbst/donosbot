@@ -57,6 +57,9 @@ def welcome_on_join(chat_member_update):
             bot.send_message(user_id, RULES_TEXT)
         except:
             pass
+ @bot.message_handler(commands=['id'])
+def get_real_id(message):
+    bot.reply_to(message, f"ID этой группы: {message.chat.id}")
 
 @bot.message_handler(commands=['start'])
 def start(message):
