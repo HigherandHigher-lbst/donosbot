@@ -1,4 +1,5 @@
 import telebot
+from telebot import types
 from flask import Flask
 from threading import Thread
 
@@ -7,7 +8,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return "Бот жив!"
+    return "Бот работает!"
 
 def run():
     app.run(host='0.0.0.0', port=8080)
@@ -17,72 +18,95 @@ def keep_alive():
     t.start()
 
 
-TOKEN = '8225110405:AAFwYRq9eeviM-mZZiJIk7mvnCV66dwKhng'
+TOKEN = '8225110405:AAFwYRq9eeviM-mZZiJIk7mvnCV66dwKhng' 
 TARGET_CHAT_ID = -1001796038229
 ADMIN_CHAT_ID = 5110146436
 TOPIC_ID = 3821
+GROUP_LINK = "https://t.me" 
 
 bot = telebot.TeleBot(TOKEN)
 
 
-def is_user_in_group(user_id):
+RULES_TEXT = (
+    "*** условия использования бота доносы ***\n\n"
+    "1 Конфиденциальность: Каждое обращение фиксирует ваш технический ID. Он доступен только администратору. "
+    "Мы гарантируем, что данные не передаются третьим лицам, за исключением случаев нарушения данных правил.\n"
+    "2 Целевое использование: Если сообщение не является доносом или нарушает работу бота (спам, флуд), "
+    "ваш ID передается персоналу для выдачи наказания:\n"
+    "- 1 раз: варн\n"
+    "- 2 раз: бан (апелляция через 3 дня).\n"
+    "3 Ошибочные доносы: Если вы ошиблись, немедленно сообщите админу. В противном случае — варн, повторно — мут на 24 часа.\n"
+    "4 Клевета и личная неприязнь: Заведомо ложный донос или попытка использовать бота для личной мести карается мутом на 24 часа. "
+    "Повторно — бан без права апелляции.\n\n"
+    "ВАЖНО: Используя бота, вы автоматически принимаете данные условия и даете согласие на обработку вашего ID в целях модерации."
+)
+
+
+def is_subscribed(user_id):
     try:
         member = bot.get_chat_member(TARGET_CHAT_ID, user_id)
-        
-        
         return member.status in ['member', 'administrator', 'creator']
-    except Exception as e:
-        print(f"Ошибка при проверке пользователя {user_id}: {e}")
+    except Exception:
         return False
+
+
+@bot.chat_member_handler()
+def welcome_on_join(chat_member_update):
+    )
+    if chat_member_update.new_chat_member.status == "member":
+        user_id = chat_member_update.new_chat_member.user.id
+        try:
+            
+            bot.send_message(user_id, "👋 Привет! Ты вступил в группу. Пожалуйста, ознакомься с правилами бота:")
+            bot.send_message(user_id, RULES_TEXT)
+        except Exception:
+            
+            pass
+
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    text = (
-        "*** УСЛОВИЯ ИСПОЛЬЗОВАНИЯ БОТА ДОНОСЫ ***\n\n"
-        "1. Конфиденциальность: Каждое обращение фиксирует ваш ID. Он доступен администратору...\n"
-        "2. Целевое использование: Сообщения не должны быть спамом или флудом.\n"
-        "3. Наказания: Бан за ложные доносы или нарушения.\n"
-        "ВАЖНО: Пользуясь ботом, вы соглашаетесь с правилами."
-    )
-    bot.send_message(message.chat.id, text)
-    bot.send_message(message.chat.id, "*** Пиши донос после этого сообщения! ***")
+    bot.send_message(message.chat.id, RULES_TEXT)
+    bot.send_message(message.chat.id, "⬇️ **Пиши донос после этого сообщения!**")
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "check_sub")
+def check_callback(call):
+    if is_subscribed(call.from_user.id):
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, "✅ Проверка прошла! Теперь присылай донос.")
+    else:
+        bot.answer_callback_query(call.id, "❌ Вы всё еще не вступили!", show_alert=True)
+
 
 @bot.message_handler(func=lambda message: message.chat.type == 'private')
 def handle_private_message(message):
-    
-    if not is_user_in_group(message.from_user.id):
+    if not is_subscribed(message.from_user.id):
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("🔗 Вступить в группу", url=GROUP_LINK))
+        markup.add(types.InlineKeyboardButton("✅ Я вступил(а)", callback_data="check_sub"))
+        
         bot.send_message(
             message.chat.id, 
-            "❌ **Доступ ограничен!**\n\nЧтобы отправлять доносы, вы должны быть участником нашей группы. Пожалуйста, вступите в неё и попробуйте снова."
+            "⚠️ **Доступ ограничен!**\nДля отправки доносов нужно быть в группе.",
+            reply_markup=markup
         )
         return
 
-    
     if message.text:
         try:
-            
-            bot.send_message(
-                chat_id=TARGET_CHAT_ID,
-                text=message.text,
-                message_thread_id=TOPIC_ID 
-            )
-
+            bot.send_message(TARGET_CHAT_ID, message.text, message_thread_id=TOPIC_ID)
             
             username = f"@{message.from_user.username}" if message.from_user.username else "нет username"
-            info = f"🔔 **Донос от:**\nID: `{message.from_user.id}`\nUsername: {username}"
-            
-            
+            info = f"🔔 **Новый донос!**\nОт: {username}\nID: `{message.from_user.id}`"
             bot.send_message(ADMIN_CHAT_ID, info, parse_mode="Markdown")
-
             
             bot.send_message(message.chat.id, "✅ Донос успешно отправлен 🕊️")
-            
         except Exception as e:
-            bot.send_message(message.chat.id, "❌ Произошла ошибка при отправке. Попробуйте позже.")
-            print(f"Ошибка отправки: {e}")
+            bot.send_message(message.chat.id, "❌ Ошибка отправки.")
 
 if __name__ == "__main__":
     keep_alive()
     print("Бот запущен...")
-    bot.polling(none_stop=True)
-
+    
+    bot.polling(none_stop=True, allowed_updates=["message", "callback_query", "chat_member"])
